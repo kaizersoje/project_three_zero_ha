@@ -1,4 +1,4 @@
-"""Sensor platform to display the current fuel prices at a NSW fuel station."""
+"""Sensor platform to display the current fuel prices at a fuel station."""
 import datetime
 import logging
 from typing import Optional
@@ -14,8 +14,8 @@ from homeassistant.util import Throttle
 
 _LOGGER = logging.getLogger(__name__)
 
-ATTR_LATITUDE = "Latitude"
-ATTR_LONGITUDE = "Longitude"
+ATTR_LATITUDE = "latitude"
+ATTR_LONGITUDE = "longitude"
 
 
 CONF_UPDATE_FREQUENCY = 'update_frequency'
@@ -51,7 +51,7 @@ MIN_TIME_BETWEEN_UPDATES = datetime.timedelta(minutes=5)
 
 
 def setup_platform(hass, config, add_entities, discovery_info=None):
-    """Set up the NSW Fuel Station sensor."""
+    """Set up the Fuel Station sensor."""
 
     update_frequency = config[CONF_UPDATE_FREQUENCY]
     fuel_types = config[CONF_FUEL_TYPES]

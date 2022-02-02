@@ -16,7 +16,8 @@ _LOGGER = logging.getLogger(__name__)
 
 ATTR_LATITUDE = "latitude"
 ATTR_LONGITUDE = "longitude"
-
+ATTR_STATION = "station"
+ATTR_REGION = "region" #added region
 
 CONF_UPDATE_FREQUENCY = 'update_frequency'
 CONF_UPDATE_FREQUENCY_DEFAULT = 5
@@ -168,7 +169,9 @@ class StationPriceSensor(Entity):
         return {
             ATTR_ATTRIBUTION: ATTRIBUTION,
             ATTR_LATITUDE: data['lat'] or None,
-            ATTR_LONGITUDE: data['lng'] or None
+            ATTR_LONGITUDE: data['lng'] or None,
+            ATTR_REGION: region or None,
+            ATTR_STATION: f"{data['suburb']} {data['postcode']}" or None
         }
 
     @property

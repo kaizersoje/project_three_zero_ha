@@ -170,7 +170,7 @@ class StationPriceSensor(Entity):
             ATTR_ATTRIBUTION: ATTRIBUTION,
             ATTR_LATITUDE: data['lat'] or None,
             ATTR_LONGITUDE: data['lng'] or None,
-            ATTR_REGION: region or None,
+            #ATTR_REGION: f"{data['state']} or None,
             ATTR_STATION: f"{data['suburb']} {data['postcode']}" or None
         }
 

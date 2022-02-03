@@ -150,7 +150,8 @@ class StationPriceSensor(Entity):
         if not self.registry_entry:
             return self.unique_id
 
-        return f"{data['type']} @ {data['suburb']} {data['postcode']} ({data['state']})"
+        # return f"{data['type']} @ {data['suburb']} {data['postcode']} ({data['state']})"
+        return f"{data['type']}"
 
     @property
     def state(self) -> Optional[float]:

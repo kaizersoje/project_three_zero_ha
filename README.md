@@ -26,6 +26,7 @@ A simple component for home assistant to display the cheapest prices around aust
 
 <p align="center">
     <img src="./img/1.png">
+    <img src="./img/3.png">
 </p>
 
 ## Fuel Types

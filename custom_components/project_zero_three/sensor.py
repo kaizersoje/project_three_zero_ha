@@ -50,7 +50,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
 
 
 # TODO figure out to how to do this dynamically
-MIN_TIME_BETWEEN_UPDATES = datetime.timedelta(minutes=5)
+MIN_TIME_BETWEEN_UPDATES = datetime.timedelta(minutes=CONF_UPDATE_FREQUENCY_DEFAULT)
 
 
 def setup_platform(hass, config, add_entities, discovery_info=None):
@@ -60,7 +60,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     fuel_types = config[CONF_FUEL_TYPES]
     region = config.get(CONF_REGION)
 
-    data = FuelPriceData()
+    data = FuelPriceData(region)
     data.update()
 
     if data.error is not None:
@@ -87,12 +87,14 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 class FuelPriceData:
     """An object to store and fetch the latest data for a given station."""
 
-    def __init__(self) -> None:
+    def __init__(self, region) -> None:
         """Initialize the sensor."""
         self._data = None
         self._reference_data = None
         self.error = None
         self._station_name = None
+        self._region_id = region
+        self._region = None
 
     @Throttle(MIN_TIME_BETWEEN_UPDATES)
     def update(self):
@@ -104,7 +106,10 @@ class FuelPriceData:
                                        'like Gecko) Chrome/80.0.3987.0 Safari/537.36 Edg/80.0.360.0'}
             )
 
-            self._data = res.json()['regions'][0]['prices']
+            # self._data = res.json()['regions'][0]['prices']
+            self._data = res.json()['regions'][self._region_id]['prices']
+            self._region = res.json()['regions'][self._region_id]['region']
+            
         except requests.RequestException as exc:
             self.error = str(exc)
             _LOGGER.error("Failed to fetch project zero three price data. %s", exc)
@@ -120,7 +125,10 @@ class FuelPriceData:
     def get_available_fuel_types(self):
         """Return the available fuel types for the station."""
         return [price['type'] for price in self._data]
-
+    
+    def get_region(self):
+        """Return the region."""
+        return self._region
 
 class StationPriceSensor(Entity):
 
@@ -139,11 +147,20 @@ class StationPriceSensor(Entity):
 
         return None
 
+    def get_region(self) -> Optional[str]:
+        """Return the region of the sensor."""
+        region = self._data.get_region()
+        if region:
+            return region
+
+        return None
+
     @property
     def unique_id(self) -> Optional[str]:
         """Return the name of the sensor."""
         data = self.get_price_data()
-        return f"project_zero_three_{data['type']}"
+        region = self.get_region()
+        return f"project_zero_three_{data['type']}_{region}"
 
     @property
     def name(self) -> str:
@@ -168,12 +185,14 @@ class StationPriceSensor(Entity):
     def extra_state_attributes(self) -> dict:
         """Return the state attributes of the device."""
         data = self.get_price_data()
+        region = self.get_region()
 
         return {
             ATTR_ATTRIBUTION: ATTRIBUTION,
             ATTR_LATITUDE: data['lat'] or None,
             ATTR_LONGITUDE: data['lng'] or None,
             #ATTR_REGION: f"{data['state']} or None,
+            ATTR_REGION: region or None,
             ATTR_STATION: f"{data['suburb']} {data['postcode']}" or None
         }
 

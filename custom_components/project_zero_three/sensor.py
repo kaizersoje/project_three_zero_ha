@@ -17,10 +17,15 @@ _LOGGER = logging.getLogger(__name__)
 ATTR_LATITUDE = "latitude"
 ATTR_LONGITUDE = "longitude"
 ATTR_STATION = "station"
-ATTR_REGION = "region" #added region
+ATTR_REGION = "region"
+ATTRIBUTION = "Data provided by Project Zero Three"
+NOTIFICATION_ID = "project_zero_three_notification"
+NOTIFICATION_TITLE = "Project Three Zero Setup"
 
 CONF_UPDATE_FREQUENCY = 'update_frequency'
 CONF_UPDATE_FREQUENCY_DEFAULT = 5
+CONF_REGION = "region"
+CONF_REGION_DEFAULT = 0
 
 CONF_FUEL_TYPES = "fuel_types"
 CONF_ALLOWED_FUEL_TYPES = [
@@ -33,19 +38,16 @@ CONF_ALLOWED_FUEL_TYPES = [
 ]
 CONF_DEFAULT_FUEL_TYPES = ["E10", "U91", "U95", "U98"]
 
-ATTRIBUTION = "Data provided by Project Zero Three"
-
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
         vol.Optional(CONF_UPDATE_FREQUENCY, default=CONF_UPDATE_FREQUENCY_DEFAULT): cv.positive_int,
-        vol.Optional(CONF_FUEL_TYPES, default=CONF_ALLOWED_FUEL_TYPES): vol.All(
+        vol.Optional(CONF_FUEL_TYPES, default=CONF_DEFAULT_FUEL_TYPES): vol.All(
             cv.ensure_list, [vol.In(CONF_ALLOWED_FUEL_TYPES)]
         ),
+        vol.Optional(CONF_REGION, default=CONF_REGION_DEFAULT): cv.positive_int
     }
 )
 
-NOTIFICATION_ID = "project_zero_three_notification"
-NOTIFICATION_TITLE = "Project Three Zero Setup"
 
 # TODO figure out to how to do this dynamically
 MIN_TIME_BETWEEN_UPDATES = datetime.timedelta(minutes=5)
@@ -56,6 +58,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 
     update_frequency = config[CONF_UPDATE_FREQUENCY]
     fuel_types = config[CONF_FUEL_TYPES]
+    region = config.get(CONF_REGION)
 
     data = FuelPriceData()
     data.update()
